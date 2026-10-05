@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\OpeningHours;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -26,8 +28,21 @@ class HomeController extends Controller
         return view('parkreglement');
     }
 
-    public function openingstijden()
+    public function openingstijden(Request $request, OpeningHours $openingHours)
     {
-        return view('openingstijden');
+        $firstMonth = CarbonImmutable::today()->startOfMonth();
+        $lastMonth = $firstMonth->addMonths(config('park.calendar_months_ahead'));
+
+        $month = $firstMonth;
+        if (preg_match('/^\d{4}-\d{2}$/', (string) $request->query('maand'))) {
+            $requested = CarbonImmutable::createFromFormat('!Y-m', $request->query('maand'));
+            $month = $requested->max($firstMonth)->min($lastMonth);
+        }
+
+        $weeks = $openingHours->forMonth($month->year, $month->month);
+        $previousMonth = $month->gt($firstMonth) ? $month->subMonth() : null;
+        $nextMonth = $month->lt($lastMonth) ? $month->addMonth() : null;
+
+        return view('openingstijden', compact('month', 'weeks', 'previousMonth', 'nextMonth'));
     }
 }
