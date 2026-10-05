@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OpeningHourExceptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\RideController;
@@ -80,6 +81,10 @@ Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('souvenirs', SouvenirController::class)
         ->except(['index'])
         ->parameters(['souvenirs' => 'souvenir']);
+
+    Route::resource('openingstijden', OpeningHourExceptionController::class)
+        ->except(['show'])
+        ->parameters(['openingstijden' => 'exception']);
 });
 
 require __DIR__ . '/auth.php';
