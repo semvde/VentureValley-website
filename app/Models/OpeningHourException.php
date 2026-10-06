@@ -9,13 +9,15 @@ use Illuminate\Support\Carbon;
 
 class OpeningHourException extends Model
 {
-    protected $fillable = ['date', 'is_closed', 'open_time', 'close_time', 'note'];
+    protected $fillable = ['date', 'is_closed', 'open_hour', 'close_hour', 'note'];
 
     protected function casts(): array
     {
         return [
             'date' => 'date',
             'is_closed' => 'boolean',
+            'open_hour' => 'integer',
+            'close_hour' => 'integer',
         ];
     }
 

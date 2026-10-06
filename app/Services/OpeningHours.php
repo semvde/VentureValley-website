@@ -50,7 +50,6 @@ class OpeningHours
                 'is_closed' => false,
                 'open' => config('park.opening_hours.open'),
                 'close' => config('park.opening_hours.close'),
-                'note' => null,
                 'is_exception' => false,
             ];
         }
@@ -58,9 +57,8 @@ class OpeningHours
         return [
             'date' => $date,
             'is_closed' => $exception->is_closed,
-            'open' => $exception->is_closed ? null : substr($exception->open_time, 0, 5),
-            'close' => $exception->is_closed ? null : substr($exception->close_time, 0, 5),
-            'note' => $exception->note,
+            'open' => $exception->is_closed ? null : $exception->open_hour,
+            'close' => $exception->is_closed ? null : $exception->close_hour,
             'is_exception' => true,
         ];
     }

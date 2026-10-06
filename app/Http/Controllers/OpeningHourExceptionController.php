@@ -120,8 +120,8 @@ class OpeningHourExceptionController extends Controller
     {
         return [
             'is_closed' => 'boolean',
-            'open_time' => 'exclude_if:is_closed,1|required|date_format:H:i',
-            'close_time' => 'exclude_if:is_closed,1|required|date_format:H:i|after:open_time',
+            'open_hour' => 'exclude_if:is_closed,1|required|integer|between:0,23',
+            'close_hour' => 'exclude_if:is_closed,1|required|integer|between:1,24|gt:open_hour',
             'note' => 'nullable|string|max:100',
         ];
     }
@@ -132,8 +132,8 @@ class OpeningHourExceptionController extends Controller
 
         return [
             'is_closed' => $isClosed,
-            'open_time' => $isClosed ? null : $validated['open_time'],
-            'close_time' => $isClosed ? null : $validated['close_time'],
+            'open_hour' => $isClosed ? null : $validated['open_hour'],
+            'close_hour' => $isClosed ? null : $validated['close_hour'],
             'note' => $validated['note'] ?? null,
         ];
     }

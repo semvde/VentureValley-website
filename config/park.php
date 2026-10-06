@@ -7,14 +7,14 @@ return [
     | Standaard openingstijden
     |--------------------------------------------------------------------------
     |
-    | Deze tijden gelden voor elke dag waarvoor geen uitzondering is
-    | ingesteld via het admin-dashboard.
+    | Deze tijden (hele uren, 0 t/m 24) gelden voor elke dag waarvoor geen
+    | uitzondering is ingesteld via het admin-dashboard.
     |
     */
 
     'opening_hours' => [
-        'open' => '07:00',
-        'close' => '23:59',
+        'open' => 7,
+        'close' => 24,
     ],
 
     /*
