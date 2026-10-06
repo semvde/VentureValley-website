@@ -16,7 +16,7 @@
             <p>
                 Standaard is het park elke dag geopend van
                 <strong>{{ config('park.opening_hours.open') }}</strong> tot
-                <strong>{{ config('park.opening_hours.close') }}</strong>. Hieronder staan de afwijkende dagen.
+                <strong>{{ config('park.opening_hours.close') }} uur</strong>. Hieronder staan de afwijkende dagen.
             </p>
             @if($showPast)
                 <a href="{{ route('admin.openingstijden.index') }}" class="text-[--color-primary] shrink-0">
@@ -35,7 +35,7 @@
             <tr>
                 <th class="p-3">Datum</th>
                 <th class="p-3">Openingstijden</th>
-                <th class="max-sm:hidden p-3">Notitie</th>
+                <th class="max-sm:hidden p-3">Interne notitie</th>
                 <th class="p-3"></th>
             </tr>
             </thead>
@@ -47,7 +47,7 @@
                         @if($exception->is_closed)
                             <span class="text-red-700">Gesloten</span>
                         @else
-                            {{ substr($exception->open_time, 0, 5) }} – {{ substr($exception->close_time, 0, 5) }}
+                            {{ $exception->open_hour }} – {{ $exception->close_hour }} uur
                         @endif
                     </td>
                     <td class="max-sm:hidden p-3">{{ $exception->note }}</td>
