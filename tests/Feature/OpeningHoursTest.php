@@ -20,18 +20,18 @@ test('calendar shows default opening hours for the current month', function () {
     $this->get('/openingstijden')
         ->assertOk()
         ->assertSee('Oktober 2026')
-        ->assertSee('07:00 – 23:59');
+        ->assertSee('7u – 24u');
 });
 
 test('calendar shows exceptions', function () {
-    OpeningHourException::create(['date' => '2026-10-10', 'open_time' => '07:00', 'close_time' => '20:00']);
-    OpeningHourException::create(['date' => '2026-10-11', 'is_closed' => true, 'note' => 'Onderhoud']);
+    OpeningHourException::create(['date' => '2026-10-10', 'open_hour' => 7, 'close_hour' => 20]);
+    OpeningHourException::create(['date' => '2026-10-11', 'is_closed' => true, 'note' => 'Interne testnotitie']);
 
     $this->get('/openingstijden')
         ->assertOk()
-        ->assertSee('07:00 – 20:00')
+        ->assertSee('7u – 20u')
         ->assertSee('Gesloten')
-        ->assertSee('Onderhoud');
+        ->assertDontSee('Interne testnotitie');
 });
 
 test('calendar month is limited to the current month and three months ahead', function () {
@@ -52,15 +52,15 @@ test('admin can create a single exception', function () {
         ->post('/admin/openingstijden', [
             'date' => '2026-10-10',
             'is_closed' => '0',
-            'open_time' => '07:00',
-            'close_time' => '20:00',
+            'open_hour' => 7,
+            'close_hour' => 20,
         ])
         ->assertRedirect('/admin/openingstijden')
         ->assertSessionHasNoErrors();
 
     $exception = OpeningHourException::sole();
     expect($exception->date->toDateString())->toBe('2026-10-10')
-        ->and($exception->close_time)->toStartWith('20:00');
+        ->and($exception->close_hour)->toBe(20);
 });
 
 test('admin can create an exception for a period', function () {
@@ -73,7 +73,7 @@ test('admin can create an exception for a period', function () {
         ->assertSessionHasNoErrors();
 
     expect(OpeningHourException::count())->toBe(7)
-        ->and(OpeningHourException::where('is_closed', true)->whereNull('open_time')->count())->toBe(7);
+        ->and(OpeningHourException::where('is_closed', true)->whereNull('open_hour')->count())->toBe(7);
 });
 
 test('creating a period fails when a day already has an exception', function () {
@@ -94,14 +94,26 @@ test('closing time must be after opening time', function () {
     $this->actingAs(admin())
         ->post('/admin/openingstijden', [
             'date' => '2026-10-10',
-            'open_time' => '20:00',
-            'close_time' => '07:00',
+            'open_hour' => 20,
+            'close_hour' => 7,
         ])
-        ->assertSessionHasErrors('close_time');
+        ->assertSessionHasErrors('close_hour');
+});
+
+test('only whole hours from 0 to 24 are allowed', function () {
+    $this->actingAs(admin())
+        ->post('/admin/openingstijden', [
+            'date' => '2026-10-10',
+            'open_hour' => '7:01',
+            'close_hour' => 25,
+        ])
+        ->assertSessionHasErrors(['open_hour', 'close_hour']);
+
+    expect(OpeningHourException::count())->toBe(0);
 });
 
 test('admin can update and delete an exception', function () {
-    $exception = OpeningHourException::create(['date' => '2026-10-10', 'open_time' => '07:00', 'close_time' => '20:00']);
+    $exception = OpeningHourException::create(['date' => '2026-10-10', 'open_hour' => 7, 'close_hour' => 20]);
 
     $this->actingAs(admin())
         ->put("/admin/openingstijden/{$exception->id}", [
@@ -111,7 +123,7 @@ test('admin can update and delete an exception', function () {
         ->assertSessionHasNoErrors();
 
     expect($exception->fresh()->is_closed)->toBeTrue()
-        ->and($exception->fresh()->open_time)->toBeNull();
+        ->and($exception->fresh()->open_hour)->toBeNull();
 
     $this->actingAs(admin())->delete("/admin/openingstijden/{$exception->id}");
 
